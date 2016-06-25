@@ -1,0 +1,44 @@
+package com.bkav.bkavsignature.test;
+
+import java.io.IOException;
+
+import com.bkav.bkavsignature.jar.JarSigner;
+import com.bkav.bkavsignature.utils.BkavSignaturesException;
+import com.bkav.bkavsignature.utils.CryptoToken;
+import com.bkav.bkavsignature.utils.CryptoTokenUtil;
+import com.bkav.bkavsignature.utils.FileUtil;
+
+public class JarSignatureTest {
+	public static void main(String[] args) {
+		sign();
+	}
+	public static void sign() {
+		String inputPath = "S:/WORK/2016/05-2016/Test_files/input.jar";
+		String configDir = "S:/WORK/2016/06-2016/E-Token/config.cfg";
+		String pin = "12345678";
+
+		CryptoToken token = null;
+		try {
+			token = CryptoTokenUtil.initFromPkcs11(configDir, pin);
+		} catch (BkavSignaturesException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		if (token == null) {
+			System.out.println("Token null");
+			return;
+		}
+
+		try {
+			byte[] unSign = FileUtil.readBytesFromFile(inputPath);
+			byte[] signed = JarSigner.sign(unSign, token, null);
+			signed.notify();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BkavSignaturesException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+}
