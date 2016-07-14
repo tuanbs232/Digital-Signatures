@@ -12,7 +12,7 @@ import com.bkav.bkavsignature.validationservice.CertificateValidator;
 public class PDFValidatorTest {
 
 	public static void main(String[] args) {
-		String signedDoc = "C:/Users/TUANBS/Desktop/signed.pdf";
+		String signedDoc = "C:/Users/Windows 7/Desktop/signed.pdf";
 		verify(signedDoc);
 	}
 
