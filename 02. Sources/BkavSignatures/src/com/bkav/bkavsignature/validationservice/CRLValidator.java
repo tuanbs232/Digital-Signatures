@@ -195,7 +195,6 @@ public class CRLValidator {
 		for (final File fileEntry : containFolder.listFiles()) {
 			if (!fileEntry.isDirectory()
 					&& fileEntry.getName().endsWith(".crl")) {
-				;
 				FileInputStream inStream = null;
 				try {
 					inStream = new FileInputStream(
@@ -209,6 +208,7 @@ public class CRLValidator {
 				try {
 					crl = (X509CRL) certFactory.generateCRL(inStream);
 
+					//TODO not sure
 					if (cert.getIssuerX500Principal()
 							.equals(crl.getIssuerX500Principal())) {
 

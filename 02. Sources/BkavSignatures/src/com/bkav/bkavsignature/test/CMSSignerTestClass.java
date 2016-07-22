@@ -50,8 +50,8 @@ public class CMSSignerTestClass {
 
 	public static void signTest() {
 		String data = "Data to test";
-		final String TEST_KEYSTORE_PATH = "S:/WORK/2016/03-2016/PKCS12_TOKEN/BCSE_Client.p12";
-		final String TEST_KEYSTORE_PASS = "12345678";
+		final String TEST_KEYSTORE_PATH = "S:/WORK/2016/07-2016/SHA2/SHA2/Cert_sha2.p12";
+		final String TEST_KEYSTORE_PASS = "123456";
 
 		byte[] dataToSign = data.getBytes();
 

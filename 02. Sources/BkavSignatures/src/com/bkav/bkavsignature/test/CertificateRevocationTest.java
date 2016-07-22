@@ -4,9 +4,11 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.security.cert.CRLException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
@@ -33,7 +35,27 @@ public class CertificateRevocationTest {
 	static String SUB_RA_CERT_2 = "MIIEHzCCAwegAwIBAgIQVANw4UlPXfr43CWcIUYVpjANBgkqhkiG9w0BAQUFADBJMQswCQYDVQQGEwJWTjEOMAwGA1UEBxMFSGFub2kxGTAXBgNVBAoTEEJrYXYgQ29ycG9yYXRpb24xDzANBgNVBAMTBkJrYXZDQTAeFw0xNTA2MjAyMzI0MzhaFw0xNjA2MTkyMzI0MzhaMIGWMR4wHAYKCZImiZPyLGQBAQwOTVNUOjAyMDA2NDg3MTExOTA3BgNVBAMMMEPDtG5nIFR5IEPhu5UgUGjhuqduIFRoxrDGoW5nIE3huqFpIE1p4buBbiBC4bqvYzEVMBMGA1UEBwwMTmfDtCBRdXnhu4FuMRUwEwYDVQQIDAxI4bqjaSBQaMOybmcxCzAJBgNVBAYTAlZOMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCuONjk43L6lKGYKFGRCx9w/wowfpKM4vPx5SYlNBaiq6C8+H6EHalUMLgYpyob9iPhh+HmKBWDR08FAojrDTpKvAWJBOPG60rkPFoo+NExbIcc61GcdEiBAzOHZEAMI0hoCRA9LLCCMjLU4P0AAaL4H7FCAR8T2GWiqA5IePlRvQIDAQABo4IBNzCCATMwMQYIKwYBBQUHAQEEJTAjMCEGCCsGAQUFBzABhhVodHRwOi8vb2NzcC5ia2F2Y2Eudm4wHQYDVR0OBBYEFK1znt/rvwdaMADClYBIk6V7z1tvMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUHrAPSJff0MNnp0aEO1g7iA1TlIYwfwYDVR0fBHgwdjB0oCOgIYYfaHR0cDovL2NybC5ia2F2Y2Eudm4vQmthdkNBLmNybKJNpEswSTEPMA0GA1UEAwwGQmthdkNBMRkwFwYDVQQKDBBCa2F2IENvcnBvcmF0aW9uMQ4wDAYDVQQHDAVIYW5vaTELMAkGA1UEBhMCVk4wDgYDVR0PAQH/BAQDAgeAMB8GA1UdJQQYMBYGCCsGAQUFBwMEBgorBgEEAYI3CgMMMA0GCSqGSIb3DQEBBQUAA4IBAQB576Qyl7opDWM7BoTvWUeEblRx4D5v5RAoxHrSAi6HrIQbza+8hJU56VqbVJWKHyiaawdJ9GKC8heUc75YzIenqqP7U6/P3pm95VPyHIZXayCtJBS2VHBDwWYSl+cEKBOAJyI8PKiQL1nhix5mFXYlO1i5i4Wc+HuQbadtG473WAXYXgwhx6jr6xCaD3LlwGC5/7JwJNZ1+hLk0yRZbGPYsDa6e500LAz1kQCnKJVczCMomaMB8ePuHLlm6HBa2DWh2A4be/O4X2dgPGCt1J+G7pntKM4Ejswi5eCgtos7GXbBgs26o8Unf4iAKunfiQ+tq4NyBYrs1fqD5Lg5ztgS";
 
 	public static void main(String[] args) {
-		testCertOK();
+		crlTest();
+	}
+
+	public static void crlTest() {
+		String path = "C:/Users/Windows 7/Desktop/ckca.crl";
+		FileInputStream inStream;
+		try {
+			inStream = new FileInputStream(path);
+			X509CRL crl = (X509CRL) CertificateFactory.getInstance("X509")
+					.generateCRL(inStream);
+			System.out.println(crl.getThisUpdate());
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CRLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CertificateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public static void checkCertificate(String base64CertData) {
