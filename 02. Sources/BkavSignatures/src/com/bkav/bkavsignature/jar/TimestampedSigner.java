@@ -323,7 +323,10 @@ public final class TimestampedSigner extends ContentSigner {
 				// ignore
 			}
 		}
-		byte[] digest = messageDigest.digest(toBeTimestamped);
+		byte[] digest = null;
+		if(toBeTimestamped != null){
+			digest = messageDigest.digest(toBeTimestamped);
+		}
 
 		// Generate a timestamp
 		TSRequest tsQuery = new TSRequest(digest, "SHA-1");
