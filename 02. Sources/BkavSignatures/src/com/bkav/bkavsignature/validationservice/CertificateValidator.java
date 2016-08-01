@@ -87,13 +87,13 @@ public class CertificateValidator {
 			if (result == 0) {
 				log += "\n\tREVOCATION: DONE";
 			}
-		} else{
+		} else {
 			log += "\n\t[WARNING] Revocation not checked.";
 		}
 		LOG.info(log);
 		return result;
 	}
-	
+
 	/**
 	 * Verify certificate all steps. Revocation status by OCSP or CRL pass by
 	 * parameter
@@ -239,7 +239,7 @@ public class CertificateValidator {
 			return 1;
 		}
 
-		boolean getNewCAWithCrossCert = true;
+		boolean getNewCAWithCrossCert = false;
 
 		X509Certificate issuerCert = getIssuerCertificate(signerCert, certChain,
 				getNewCAWithCrossCert);
@@ -253,10 +253,15 @@ public class CertificateValidator {
 			verifyCode = true;
 			log += "\n\tISSUER'S SIGNATURE: DONE";
 		} catch (InvalidKeyException e1) {
+			log += "\n\tISSUER'S SIGNATURE: " + e1.getMessage();
 		} catch (CertificateException e1) {
+			log += "\n\tISSUER'S SIGNATURE: " + e1.getMessage();
 		} catch (NoSuchAlgorithmException e1) {
+			log += "\n\tISSUER'S SIGNATURE: " + e1.getMessage();
 		} catch (NoSuchProviderException e1) {
+			log += "\n\tISSUER'S SIGNATURE: " + e1.getMessage();
 		} catch (SignatureException e1) {
+			log += "\n\tISSUER'S SIGNATURE: " + e1.getMessage();
 		}
 
 		if (!verifyCode) {
@@ -517,28 +522,34 @@ public class CertificateValidator {
 		X509Certificate result = null;
 		try {
 			CertificateFactory certFactory = CertificateFactory
-					.getInstance("X509");
+					.getInstance("X509", "BC");
 
 			String issuerCertDir = path;
 
 			File containFolder = new File(issuerCertDir);
-
-			for (final File fileEntry : containFolder.listFiles()) {
+			File[] listFiles = containFolder.listFiles();
+			if (listFiles == null) {
+				return null;
+			}
+			for (File fileEntry : listFiles) {
+				if (fileEntry == null) {
+					continue;
+				}
 				if (!fileEntry.isDirectory()
 						&& fileEntry.getName().endsWith(".cer")) {
 					FileInputStream inStream = new FileInputStream(new File(
 							issuerCertDir + "/" + fileEntry.getName()));
-
 					Certificate issuerCert = certFactory
 							.generateCertificate(inStream);
-
+					//
 					if (issuerCert instanceof X509Certificate) {
 						X509Certificate cert = (X509Certificate) issuerCert;
-						if (cert.getSubjectX500Principal()
-								.equals(signerCert.getIssuerX500Principal())) {
-
-							result = cert;
-							break;
+						try {
+							signerCert.verify(cert.getPublicKey());
+							return cert;
+						} catch (InvalidKeyException e) {
+						} catch (NoSuchAlgorithmException e) {
+						} catch (SignatureException e) {
 						}
 					}
 				}
@@ -549,6 +560,9 @@ public class CertificateValidator {
 			return null;
 		} catch (FileNotFoundException e) {
 			log += "\n'\t[ERROR] Issuer certificate file not found.";
+			return null;
+		} catch (NoSuchProviderException e) {
+			log += "\n'\t[ERROR] Cannot get Issuer certificate, no provider name BC";
 			return null;
 		}
 
@@ -569,7 +583,7 @@ public class CertificateValidator {
 		boolean foundRootCA = false;
 		try {
 			CertificateFactory certFactory = CertificateFactory
-					.getInstance("X509");
+					.getInstance("X509", "BC");
 
 			String issuerCertDir = "";
 			String osName = System.getProperty("os.name");
@@ -585,7 +599,11 @@ public class CertificateValidator {
 			result.add(currentCA);
 			while (!isTrustAnchor(currentCA)) {
 				boolean found = false;
-				for (final File fileEntry : containFolder.listFiles()) {
+				File[] listFiles = containFolder.listFiles();
+				if (listFiles == null) {
+					continue;
+				}
+				for (final File fileEntry : listFiles) {
 					if (!fileEntry.isDirectory()
 							&& fileEntry.getName().endsWith(".cer")) {
 						FileInputStream inStream = new FileInputStream(new File(
@@ -596,19 +614,19 @@ public class CertificateValidator {
 
 						if (issuerCert instanceof X509Certificate) {
 							X509Certificate cert = (X509Certificate) issuerCert;
-							if (cert.getSubjectX500Principal().equals(
-									currentCA.getIssuerX500Principal())) {
-								try {
-									currentCA.verify(cert.getPublicKey());
-									result.add(cert);
-									currentCA = cert;
-									found = true;
-									break;
-								} catch (InvalidKeyException e) {
-								} catch (NoSuchAlgorithmException e) {
-								} catch (NoSuchProviderException e) {
-								} catch (SignatureException e) {
-								}
+							try {
+								currentCA.verify(cert.getPublicKey());
+								result.add(cert);
+								currentCA = cert;
+								found = true;
+								break;
+							} catch (InvalidKeyException e) {
+								continue;
+							} catch (NoSuchAlgorithmException e) {
+								continue;
+							} catch (NoSuchProviderException e) {
+								continue;
+							} catch (SignatureException e) {
 								continue;
 							}
 						}
@@ -626,11 +644,12 @@ public class CertificateValidator {
 
 		} catch (CertificateException e) {
 			log += "\n\t[ERROR] Cannot create certchain from file.";
-
 			return null;
 		} catch (FileNotFoundException e) {
 			log += "\n\t[ERROR] Cannot create certchain from file.";
-
+			return null;
+		} catch (NoSuchProviderException e1) {
+			log += "\n\t[ERROR] Cannot create certchain from file. No provider name BC";
 			return null;
 		}
 
@@ -672,7 +691,7 @@ public class CertificateValidator {
 	/**
 	 * Get signature verify result message
 	 * 
-	 * @param code 
+	 * @param code
 	 * @return
 	 */
 	public static String getVerifyErrorName(int code) {
@@ -707,7 +726,7 @@ public class CertificateValidator {
 			break;
 		case ValidationError.CRL_NOT_FOUND:
 			result = "Không tìm thấy CRL.";
-		break;
+			break;
 		default:
 			result = "UNDEFINDED";
 			break;

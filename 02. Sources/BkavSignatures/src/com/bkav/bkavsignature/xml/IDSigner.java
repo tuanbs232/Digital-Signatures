@@ -57,13 +57,13 @@ import org.xml.sax.SAXException;
 public class IDSigner {
 	private final String KEYSTOREPATH = "S:/WORK/2016/03-2016/PKCS12_TOKEN/test_Ng2v2m0dJcQXhdav9FqF_123456.p12";
 	private final String KEYSTOREPASS = "123456";
-//	private final String NODE_NAME = "DKyThue";
+	// private final String NODE_NAME = "DKyThue";
 	private String NODE_ID = "_NODE_TO_SIGN";
 
 	private final String TVAN_SIGNINGTIME_ID = "TimeSignatureBKAV";
 	// private final String USER_SIGNNINGTIME_ID = "TimeSignatureUSER";
-//	private final String SIGNINGTIME_URI = "signatureProperties";
-//	private final String SIGNINGTIME_TAGNAME = "DateTimeStamp";
+	// private final String SIGNINGTIME_URI = "signatureProperties";
+	// private final String SIGNINGTIME_TAGNAME = "DateTimeStamp";
 
 	public final String CONFIG = "S:/WORK/PROJECTS/Bkav_Token_config/config.cfg";
 	public final String USERPIN = "12345678";
@@ -84,7 +84,8 @@ public class IDSigner {
 			String nodeName = "HSoKhaiThue";
 			String parrentNode = "HSoThueDTu";
 			data = signer.readBytesFromFile(unsign);
-			signer.writeToFile(signer.sign(data, nodeName, parrentNode), signed);
+			signer.writeToFile(signer.sign(data, nodeName, parrentNode),
+					signed);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -177,32 +178,33 @@ public class IDSigner {
 			// Create KeyInfo Object
 			KeyInfo ki = createKeyInfo(fac);
 			// Create list objects contain sign time
-//			long signTime = (new Date()).getTime();
-//
-//			// Create a node to store signing time
-//			Node node = null;
-//			node = doc.createElement(SIGNINGTIME_TAGNAME);
-//			node.appendChild(doc.createTextNode("" + signTime));
-//			DOMStructure timeStructure = new DOMStructure(node);
-//
-//			SignatureProperty signTimeProperty = fac.newSignatureProperty(
-//					Collections.singletonList(timeStructure), SIGNINGTIME_URI,
-//					TVAN_SIGNINGTIME_ID);
-//			SignatureProperties properties = fac.newSignatureProperties(
-//					Collections.singletonList(signTimeProperty), "");
-//			XMLObject object = fac.newXMLObject(
-//					Collections.singletonList(properties), "object-1", null,
-//					null);
+			// long signTime = (new Date()).getTime();
+			//
+			// // Create a node to store signing time
+			// Node node = null;
+			// node = doc.createElement(SIGNINGTIME_TAGNAME);
+			// node.appendChild(doc.createTextNode("" + signTime));
+			// DOMStructure timeStructure = new DOMStructure(node);
+			//
+			// SignatureProperty signTimeProperty = fac.newSignatureProperty(
+			// Collections.singletonList(timeStructure), SIGNINGTIME_URI,
+			// TVAN_SIGNINGTIME_ID);
+			// SignatureProperties properties = fac.newSignatureProperties(
+			// Collections.singletonList(signTimeProperty), "");
+			// XMLObject object = fac.newXMLObject(
+			// Collections.singletonList(properties), "object-1", null,
+			// null);
 
 			// Get parent node to store signature
 			Node xpathParrent = doc.getElementsByTagName(parrentNode).item(0);
 
 			DOMSignContext dsc = new DOMSignContext(privKey, xpathParrent);
 
-//			XMLSignature signature = fac.newXMLSignature(si, ki,
-//					Collections.singletonList(object), null, null);
-			XMLSignature signature = fac.newXMLSignature(si, ki,null, null, null);
-			
+			// XMLSignature signature = fac.newXMLSignature(si, ki,
+			// Collections.singletonList(object), null, null);
+			XMLSignature signature = fac.newXMLSignature(si, ki, null, null,
+					null);
+
 			// Sign document
 			signature.sign(dsc);
 
@@ -267,38 +269,36 @@ public class IDSigner {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private SignedInfo createSignedInfo(final XMLSignatureFactory fac,
 			String timeReferenceID) throws NoSuchAlgorithmException,
-					InvalidAlgorithmParameterException {
+			InvalidAlgorithmParameterException {
 		List<Transform> transformList = new ArrayList<Transform>();
 		TransformParameterSpec tps = null;
 		Transform envelopedTransform;
 		try {
-		    envelopedTransform = fac.newTransform(Transform.ENVELOPED,
-		            tps);
-		    Transform c14NTransform = fac.newTransform(
-		            "http://www.w3.org/TR/2001/REC-xml-c14n-20010315", tps);
+			envelopedTransform = fac.newTransform(Transform.ENVELOPED, tps);
+			Transform c14NTransform = fac.newTransform(
+					"http://www.w3.org/TR/2001/REC-xml-c14n-20010315", tps);
 
-		    transformList.add(envelopedTransform);
-		    transformList.add(c14NTransform);
+			transformList.add(envelopedTransform);
+			transformList.add(c14NTransform);
 		} catch (NoSuchAlgorithmException e) {
-		    throw new RuntimeException("Erro inesperado: " + e.getMessage(), e);
+			throw new RuntimeException("Erro inesperado: " + e.getMessage(), e);
 		} catch (InvalidAlgorithmParameterException e) {
-		    throw new RuntimeException("Erro inesperado: " + e.getMessage(), e);
+			throw new RuntimeException("Erro inesperado: " + e.getMessage(), e);
 		}
 		Reference ref = fac.newReference("#" + NODE_ID,
-				fac.newDigestMethod(DigestMethod.SHA1, null), transformList, null,
-				null);
+				fac.newDigestMethod(DigestMethod.SHA1, null), transformList,
+				null, null);
 
 		// Create a reference for signing time node
-//		Reference timeRef = fac.newReference(timeReferenceID,
-//				fac.newDigestMethod(DigestMethod.SHA1, null), null, null, null);
+		// Reference timeRef = fac.newReference(timeReferenceID,
+		// fac.newDigestMethod(DigestMethod.SHA1, null), null, null, null);
 
 		List referenceList = new ArrayList();
 		referenceList.add(ref);
-//		referenceList.add(timeRef);
+		// referenceList.add(timeRef);
 
 		SignedInfo si = fac.newSignedInfo(
-				fac.newCanonicalizationMethod(
-						CanonicalizationMethod.INCLUSIVE,
+				fac.newCanonicalizationMethod(CanonicalizationMethod.INCLUSIVE,
 						(C14NMethodParameterSpec) null),
 				fac.newSignatureMethod(SignatureMethod.RSA_SHA1, null),
 				referenceList);
@@ -307,10 +307,12 @@ public class IDSigner {
 	}
 
 	public void initCrypto() {
+		FileInputStream inStream = null;
 		try {
 			KeyStore ks = KeyStore.getInstance("PKCS12");
-			ks.load(new FileInputStream(new File(KEYSTOREPATH)),
-					KEYSTOREPASS.toCharArray());
+			inStream = new FileInputStream(
+					new File(KEYSTOREPATH));
+			ks.load(inStream, KEYSTOREPASS.toCharArray());
 
 			String alias = ks.aliases().nextElement();
 
@@ -336,42 +338,51 @@ public class IDSigner {
 			e.printStackTrace();
 		} catch (UnrecoverableKeyException e) {
 			e.printStackTrace();
+		} finally {
+			if(inStream != null){
+				try {
+					inStream.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 
 	}
 
 	public void initTokenCrypto() {
-//		FileInputStream fis;
-//		try {
-//			fis = new FileInputStream(new File(CONFIG));
-//			Provider provider = new sun.security.pkcs11.SunPKCS11(fis);
-//			Security.addProvider(provider);
-//			KeyStore p11 = KeyStore.getInstance("PKCS11", provider);
-//			p11.load(null, USERPIN.toCharArray());
-//			String CERTLABEL = p11.aliases().nextElement();
-//			privKey = (PrivateKey) p11.getKey(CERTLABEL, USERPIN.toCharArray());
-//
-//			cert = p11.getCertificate(CERTLABEL);
-//
-//			Certificate[] certs = p11.getCertificateChain(CERTLABEL);
-//			for (Certificate c : certs) {
-//				if (c instanceof X509Certificate) {
-//					certChain.add((X509Certificate) c);
-//				}
-//			}
-//
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (KeyStoreException e) {
-//			e.printStackTrace();
-//		} catch (NoSuchAlgorithmException e) {
-//			e.printStackTrace();
-//		} catch (CertificateException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} catch (UnrecoverableKeyException e) {
-//			e.printStackTrace();
-//		}
+		// FileInputStream fis;
+		// try {
+		// fis = new FileInputStream(new File(CONFIG));
+		// Provider provider = new sun.security.pkcs11.SunPKCS11(fis);
+		// Security.addProvider(provider);
+		// KeyStore p11 = KeyStore.getInstance("PKCS11", provider);
+		// p11.load(null, USERPIN.toCharArray());
+		// String CERTLABEL = p11.aliases().nextElement();
+		// privKey = (PrivateKey) p11.getKey(CERTLABEL, USERPIN.toCharArray());
+		//
+		// cert = p11.getCertificate(CERTLABEL);
+		//
+		// Certificate[] certs = p11.getCertificateChain(CERTLABEL);
+		// for (Certificate c : certs) {
+		// if (c instanceof X509Certificate) {
+		// certChain.add((X509Certificate) c);
+		// }
+		// }
+		//
+		// } catch (FileNotFoundException e) {
+		// e.printStackTrace();
+		// } catch (KeyStoreException e) {
+		// e.printStackTrace();
+		// } catch (NoSuchAlgorithmException e) {
+		// e.printStackTrace();
+		// } catch (CertificateException e) {
+		// e.printStackTrace();
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// } catch (UnrecoverableKeyException e) {
+		// e.printStackTrace();
+		// }
 	}
 }

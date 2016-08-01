@@ -134,6 +134,10 @@ public class OCSPValidator {
 			return ValidationError.OCSP_RESPONSE_NULL;
 		}
 
+		if(basicResponse == null){
+			return ValidationError.OCSP_RESPONSE_NULL;
+		}
+		
 		// Get responder's certificate and verify it
 		X509Certificate ocspResponderCert = getOCSPResponderCert(issuerCert,
 				basicResponse);
@@ -147,8 +151,7 @@ public class OCSPValidator {
 			return ValidationError.OCSP_SIGNATURE_INVALID;
 		}
 
-		SingleResp[] responses = (basicResponse == null) ? null
-				: basicResponse.getResponses();
+		SingleResp[] responses = basicResponse.getResponses();
 
 		if (responses == null) {
 			CertificateValidator.log += "\n\tREVOCATION: [ERROR] Responder's "
@@ -277,6 +280,10 @@ public class OCSPValidator {
 					xcert = new JcaX509CertificateConverter()
 							.getCertificate((X509CertificateHolder) cert);
 				} catch (CertificateException ex) {
+					continue;
+				}
+				
+				if(xcert == null){
 					continue;
 				}
 

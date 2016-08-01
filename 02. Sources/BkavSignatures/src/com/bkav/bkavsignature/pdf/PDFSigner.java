@@ -176,7 +176,11 @@ public class PDFSigner {
 					BaseFont.EMBEDDED);
 			fnt = new Font(bf, 6);
 		} catch (DocumentException e2) {
+			LOG.error("DocumentException: " + e2.getMessage());
+			throw new BkavSignaturesException(e2.getMessage(), e2);
 		} catch (IOException e2) {
+			LOG.error("IOException: " + e2.getMessage());
+			throw new BkavSignaturesException(e2.getMessage(), e2);
 		}
 
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");

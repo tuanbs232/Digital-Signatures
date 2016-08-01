@@ -127,7 +127,7 @@ public class CRLValidator {
 			X509Certificate issuer, boolean tryFromFileFirst) {
 		X509CRL result = null;
 		if (tryFromFileFirst) {
-			result = getCRLFromFile(cert);
+			result = getCRLFromFile(issuer);
 		}
 
 		if (result == null) {
@@ -165,7 +165,10 @@ public class CRLValidator {
 	 * 
 	 * @return X509CRL object if available or may be null
 	 */
-	public static X509CRL getCRLFromFile(X509Certificate cert) {
+	public static X509CRL getCRLFromFile(X509Certificate issuer) {
+		if(issuer == null){
+			return null;
+		}
 		X509CRL result = null;
 
 		CertificateFactory certFactory = null;
@@ -191,8 +194,11 @@ public class CRLValidator {
 			LOG.error("/BkavCA/CRLs not found.");
 			return null;
 		}
-
-		for (final File fileEntry : containFolder.listFiles()) {
+		File[] listFiles = containFolder.listFiles();
+		if(listFiles == null){
+			return null;
+		}
+		for (final File fileEntry : listFiles) {
 			if (!fileEntry.isDirectory()
 					&& fileEntry.getName().endsWith(".crl")) {
 				FileInputStream inStream = null;
@@ -203,20 +209,22 @@ public class CRLValidator {
 					LOG.error("CRL FILE NOT FOUND EXCEPTION");
 					continue;
 				}
-
+				
 				X509CRL crl;
 				try {
 					crl = (X509CRL) certFactory.generateCRL(inStream);
 
-					//TODO not sure
-					if (cert.getIssuerX500Principal()
-							.equals(crl.getIssuerX500Principal())) {
-
-						result = crl;
-						break;
-					}
+					crl.verify(issuer.getPublicKey());
+					return crl;
 				} catch (CRLException e) {
-					LOG.error("CRL EXCEPTION " + e.getMessage());
+					continue;
+				} catch (InvalidKeyException e) {
+					continue;
+				} catch (NoSuchAlgorithmException e) {
+					continue;
+				} catch (NoSuchProviderException e) {
+					continue;
+				} catch (SignatureException e) {
 					continue;
 				}
 			}

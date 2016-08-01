@@ -3,6 +3,7 @@ package com.bkav.bkavsignature.test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import com.bkav.bkavsignature.cms.CMSSigner;
 import com.bkav.bkavsignature.cms.CMSValidator;
@@ -14,7 +15,7 @@ import com.itextpdf.text.pdf.codec.Base64;
 
 public class CMSSignerTestClass {
 	public static void main(String[] args) {
-		signTest();
+		verifyTest();
 	}
 
 	public static void verifyTest() {
@@ -39,7 +40,12 @@ public class CMSSignerTestClass {
 		byte[] signedData = Base64.decode(input);
 		// FileUtil.writeToFile(signedData,
 		// "S:/WORK/2016/05-2016/Test_Files/Signeds/text_signed.p7s");
-
+		try {
+			signedData = FileUtil.readBytesFromFile("S:/WORK/2016/05-2016/signed.p7b");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		if (signedData == null) {
 			System.out.println("data null");
 			return;
@@ -51,7 +57,7 @@ public class CMSSignerTestClass {
 	public static void signTest() {
 		String data = "Data to test";
 		final String TEST_KEYSTORE_PATH = "S:/WORK/2016/07-2016/SHA2/SHA2/Cert_sha2.p12";
-		final String TEST_KEYSTORE_PASS = "123456";
+		final String TEST_KEYSTORE_PASS = "1";
 
 		byte[] dataToSign = data.getBytes();
 

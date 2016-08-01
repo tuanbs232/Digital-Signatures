@@ -59,9 +59,13 @@ public class FileUtil {
 	 * 
 	 * @param file
 	 *            file to remove
+	 * @throws BkavSignaturesException
 	 */
-	public static void removeTmpFile(File file) {
-		file.delete();
+	public static void removeTmpFile(File file) throws BkavSignaturesException {
+		boolean check = file.delete();
+		if (!check) {
+			throw new BkavSignaturesException("Cannot remove temporary file");
+		}
 	}
 
 	/**
@@ -77,7 +81,7 @@ public class FileUtil {
 		try {
 			outStream = new FileOutputStream(new File(pathname));
 			outStream.write(input);
-			
+
 			return 0;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

@@ -106,7 +106,10 @@ public class JarSigner {
 		}
 		File tmpDir = new File(tmpDirName);
 		if (!tmpDir.exists()) {
-			tmpDir.mkdirs();
+			boolean mkdir = tmpDir.mkdirs();
+			if(!mkdir){
+				throw new BkavSignaturesException("Cannot create temporary file");
+			}
 		}
 		Date d = new Date();
 		String tmpFileName = tmpDirName + "tmp-" + d.getTime() + ".jar";
