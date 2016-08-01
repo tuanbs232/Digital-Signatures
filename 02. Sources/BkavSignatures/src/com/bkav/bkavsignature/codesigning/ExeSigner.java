@@ -23,7 +23,6 @@ public class ExeSigner {
 	private static final String TMP_DIR_LINUX = "/BkavCA/tmp/";
 	public static final String TSA_URL = "http://timestamp.comodoca.com/authenticode";
 
-
 	/**
 	 * Sign Microsoft file type
 	 * 
@@ -60,8 +59,8 @@ public class ExeSigner {
 			throw new BkavSignaturesException(
 					"No private key found in CryptoToken");
 		}
-		
-		if(tsaUrl == null){
+
+		if (tsaUrl == null) {
 			tsaUrl = TSA_URL;
 		}
 
@@ -76,8 +75,13 @@ public class ExeSigner {
 
 		File tmpDir = new File(tmpDirName);
 		if (!tmpDir.exists()) {
-			tmpDir.mkdirs();
+			boolean mkdir = tmpDir.mkdirs();
+			if (!mkdir) {
+				throw new BkavSignaturesException(
+						"ExeSigner.sign()[81]: Cannot create temporary file");
+			}
 		}
+
 		Date d = new Date();
 		String tmpFileName = tmpDirName + "tmp-" + d.getTime() + ".signserver";
 		int result = FileUtil.writeToFile(unsignData, tmpFileName);
@@ -98,7 +102,7 @@ public class ExeSigner {
 					10000) != null);
 			signer.withTimestamping(checkTSA);
 			signer.withTimestampingAutority(tsaUrl);
-			
+
 			signer.sign(peFile);
 
 			signed = FileUtil.readBytesFromFile(tmpFileName);
